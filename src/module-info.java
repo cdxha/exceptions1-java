@@ -1,0 +1,9 @@
+/**
+ * 
+ */
+/**
+ * @author henri
+ *
+ */
+module reservaHotelException {
+}
