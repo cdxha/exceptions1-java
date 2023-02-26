@@ -9,8 +9,9 @@ public class Reservation {
 	private Integer roomNumber;
 	private Date checkIn;
 	private Date checkOut;
-	
-	//static para que não seja instanciado um novo SimpleDateFormat para cada objeto Reservation.
+
+	// static para que não seja instanciado um novo SimpleDateFormat para cada
+	// objeto Reservation.
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
 	public Reservation(Integer roomNumber, Date checkIn, Date checkOut) {
@@ -35,30 +36,32 @@ public class Reservation {
 		return checkOut;
 	}
 	// setcheckIn e setcheckOut foram removidos pois existe um método para isso.
-	
-	//Diferença entre datas retorna um valor do tipo long.
+
+	// Diferença entre datas retorna um valor do tipo long.
 	// long maior Integer
-	public long  duration() {
+	public long duration() {
 		// getTime(); método que retorna a data em milissegundos.
 		long diff = checkOut.getTime() - checkIn.getTime();
 		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 	}
-	
-	public void updateDates(Date checkIn, Date checkOut) {
+
+	public String updateDates(Date checkIn, Date checkOut) {
+		Date now = new Date();
+		if (checkIn.before(now) || checkOut.before(now)) {
+			return "Error in reservation: Check-out date must be after check-in date";
+		} 
+		if (!checkOut.after(checkIn)) {
+			return "Error in reservation: Check-out date must be after check-in date";
+		} 
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
+		// operação não retorna nenhum erro (null)
+		return null;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Room "
-				+ roomNumber
-				+ ", check-in: "
-				+ sdf.format(checkIn)
-				+ ", check-out"
-				+ sdf.format(checkOut)
-				+ ", "
-				+ duration()
-				+ " nights";	
+		return "Room " + roomNumber + ", check-in: " + sdf.format(checkIn) + ", check-out" + sdf.format(checkOut) + ", "
+				+ duration() + " nights";
 	}
 }
