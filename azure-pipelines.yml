@@ -4,16 +4,14 @@
 # https://aka.ms/yaml
 
 trigger:
+
 - main
 
 pool:
-  vmImage: ubuntu-latest
-
+  name: Fortify
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: 'java -jar "C:\Program Files\Fortify\Fortify_SCA_and_Apps_22.1.0\bin\fortify-api-client-latest.jar" create -n $(Build.Repository.Name) -v $(Build.SourceBranchName)'
