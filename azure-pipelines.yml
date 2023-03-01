@@ -10,8 +10,22 @@ trigger:
 pool:
   name: Fortify
 steps:
-
-      - task: PowerShell@2
-        inputs:
-          targetType: 'inline'
-          script: 'java -jar "C:\Program Files\Fortify\Fortify_SCA_and_Apps_22.1.0\bin\fortify-api-client-latest.jar" create -n $(Build.Repository.Name) -v $(Build.SourceBranchName)'
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: 'java -jar "C:\fortifytask\fortify-api-client-latest.jar" create -n $(Build.Repository.Name) -v $(Build.SourceBranchName)'
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      java -jar "C:\fortifytask\fortify-api-client-latest.jar" waitArtifactProcess -n $(Build.Repository.Name) -version $(Build.SourceBranchName);
+            $reportfortify = java -jar "C:\fortifytask\fortify-api-client-latest.jar" legacyReport -n $(Build.Repository.Name) -version $(Build.SourceBranchName);
+            
+            echo $reportfortify;
+            
+            if ($reportfortify -like ("*- 0 Altas (Novas)*")){
+                Write-Output  "Análise Fortify SAST concluída com sucesso, nenhum problema crítico encontrado."                              
+            }
+            else{
+                Write-Error -Message "Error na  build devido a problemas críticos na análise Fortify SAST." -ErrorAction Stop
+            }
