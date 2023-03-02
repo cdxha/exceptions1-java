@@ -19,7 +19,7 @@ steps:
     targetType: 'inline'
     script: |
       scancentral arguments -o -targs "-exclude '**\**\Program.java'"
-      $var = scancentral  -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none  -upload --application $(Build.Repository.Name) --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken) | Out-String; echo $var; $jobtoken = $var.Substring($var.Length - 38).trim();
+      $var = scancentral  -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none  -upload --application Cdxha.exceptions1-java --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken) | Out-String; echo $var; $jobtoken = $var.Substring($var.Length - 38).trim();
       
       while($true){
           
