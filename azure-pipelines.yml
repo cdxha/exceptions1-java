@@ -18,37 +18,6 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      scancentral arguments -o -targs "-exclude '**\**\Program.java'"
-      $var = scancentral  -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none  -upload --application Cdxha.exceptions1-java --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken) | Out-String; echo $var; $jobtoken = $var.Substring($var.Length - 38).trim();
+     /opt/sca/scancentral -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none -upload --application Cdxha.exceptions1-java --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken) 
       
-      while($true){
-          
-      $jobStatus = java -jar "C:\fortifytask\fortify-api-client-latest.jar" checkCloudscanStatus -jt $jobtoken
-      Write-Output $jobStatus
-                             
-      if ($jobStatus -like ("*UPLOAD_COMPLETED*")){
-          echo "Cloudscan Job completed."
-          sleep 10
-          break
-      }
-      elseif ($jobStatus -like ("*ERROR*") -or $jobStatus -like ("*FAILED*") -or $jobStatus -like ("*FAULTED*") -or $jobStatus -like ("*CANCELED*")){
-          Write-Error -Message "Error ao executar o scan. Current status: $jobStatus. Consulte os logs do Fortify para obter mais detalhes"
-          return
-      }
-      else{
-          echo "Waiting job to process. Current status: $jobStatus"
-          sleep 30
-      }
-      }
-      java -jar "C:\fortifytask\fortify-api-client-latest.jar" waitArtifactProcess -n $(Build.Repository.Name) -version $(Build.SourceBranchName);
       
-      $reportfortify = java -jar "C:\fortifytask\fortify-api-client-latest.jar" legacyReport -n $(Build.Repository.Name) -version $(Build.SourceBranchName);
-      
-      echo $reportfortify;
-      
-      if ($reportfortify -like ("*- 0 Criticas (Novas)*")){
-          Write-Output  "Análise Fortify SAST concluída com sucesso. Nenhum problema critico encontrado."                              
-      }
-      else{
-          Write-Error -Message "Error na  build $(Build.Repository.Name) [$(Build.SourceBranchName)] devido a problemas críticos de seguranca na análise Fortify SAST." -ErrorAction Stop
-      }
