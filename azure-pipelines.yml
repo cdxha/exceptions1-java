@@ -10,14 +10,12 @@ trigger:
 pool:
   name: Fortify
 steps:
-- task: PowerShell@2
+- task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'java -jar "C:\fortifytask\fortify-api-client-latest.jar" create -n Cdxha.exceptions1-java -v Main'
-- task: PowerShell@2
+    script: 'java -jar /opt/fortify-api-client-latest.jar create -n $(Build.Repository.Name) -v $(Build.SourceBranchName)'
+- task: Bash@3
   inputs:
     targetType: 'inline'
-    script: |
-     /opt/sca/scancentral -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none -upload --application Cdxha.exceptions1-java --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken) 
-      
+    script:  /opt/sca/bin/scancentral -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none -upload --application $(Build.Repository.Name) --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken) 
       
