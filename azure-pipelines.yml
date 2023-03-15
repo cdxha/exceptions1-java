@@ -17,5 +17,24 @@ steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script:  /opt/sca/bin/scancentral -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none -upload --application $(Build.Repository.Name) --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken) 
+    script: |
+      var=$(/opt/sca/bin/scancentral -sscurl $(var.sscurl) -ssctoken $(var.ssctoken) start -bt none -upload --application $(Build.Repository.Name) --application-version $(Build.SourceBranchName) -uptoken $(var.uptoken)) && jobtoken=${var:(-36)} && echo jobtoken: $jobtoken
+      while true; do
+          jobStatus=$(java -jar /opt/fortify-api-client-latest.jar checkCloudscanStatus -jt $jobtoken)
+          echo jobStatus $jobStatus
+          if expr ${jobStatus//[[:space:]]/} : ".*COMPLETED*."; then
+              echo "Cloudscan Job completed."
+              sleep 10
+              break
+          elif expr ${jobStatus//[[:space:]]/} : ".*ERROR.*" || expr ${jobStatus//[[:space:]]/} : ".*FAILED.*" || expr ${jobStatus//[[:space:]]/} : ".*FAULTED.*" || expr ${jobStatus//[[:space:]]/} : ".*CANCELED.*"; then
+              echo "Erro ao executar o scan. Current status: $jobStatus. Consulte os logs do Fortify para obter mais detalhes."
+              exit
+          else
+              echo "Waiting job to process. Current status: $jobStatus"
+              sleep 30
+          fi
+      done
+      java -jar /opt/fortify-api-client-latest.jar waitArtifactProcess -n $(Build.Repository.Name) -version $(Build.SourceBranchName)
+      reportfortify=java -jar /opt/fortify-api-client-latest.jar legacyReport -n $(Build.Repository.Name) -version $(Build.SourceBranchName)
+      echo $reportfortify
       
